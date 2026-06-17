@@ -27,7 +27,6 @@ dependencies {
 	implementation("com.google.zxing:core:3.5.3")
 	implementation("com.google.zxing:javase:3.5.3")
 	runtimeOnly("com.h2database:h2")
-	// SQLite for testing (test db = SQLite, prod db = MySQL)
 	testImplementation("org.xerial:sqlite-jdbc:3.46.1.0")
 	testImplementation("org.hibernate.orm:hibernate-community-dialects")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
