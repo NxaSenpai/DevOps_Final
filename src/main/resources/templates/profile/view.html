@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(content=~{::content}, title='View Profile')}">
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3" th:text="${profile.fullName}">John Doe</h1>
+        <div>
+            <a th:href="@{/id-cards/preview/{id}(id=${profile.id})}"
+               class="btn btn-info">
+                <i class="bi bi-credit-card"></i> Preview ID Card
+            </a>
+            <a th:href="@{/id-cards/pdf/{id}(id=${profile.id})}"
+               class="btn btn-danger">
+                <i class="bi bi-file-pdf"></i> PDF
+            </a>
+            <a th:href="@{/profiles/{id}/edit(id=${profile.id})}"
+               class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <form th:action="@{/profiles/{id}/delete(id=${profile.id})}" method="post"
+                  style="display: inline;"
+                  onsubmit="return confirm('Delete this profile?')">
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Photo & Upload -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img th:src="${profile.photoPath} ?: 'https://via.placeholder.com/200x240?text=No+Photo'"
+                         class="img-fluid rounded mb-3" style="max-height: 240px;" alt="Photo">
+                    <form th:action="@{/profiles/{id}/photo(id=${profile.id})}" method="post"
+                          enctype="multipart/form-data">
+                        <input type="file" name="photo" accept="image/jpeg,image/png"
+                               class="form-control form-control-sm mb-2">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-upload"></i> Upload Photo
+                        </button>
+                        <div class="form-text">JPEG/PNG, max 5 MB</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th class="text-muted" style="width: 150px;">Registration#</th>
+                            <td><code th:text="${profile.registrationNumber}">2026-CS-0001</code></td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Profile Type</th>
+                            <td><span class="badge bg-primary" th:text="${profile.profileType}">STUDENT</span></td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">First Name</th>
+                            <td th:text="${profile.firstName}">John</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Last Name</th>
+                            <td th:text="${profile.lastName}">Doe</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Email</th>
+                            <td th:text="${profile.email} ?: '-'">john@example.com</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Phone</th>
+                            <td th:text="${profile.phone} ?: '-'">+1234567890</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Department</th>
+                            <td th:text="${profile.department} ?: '-'">Computer Science</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Date of Birth</th>
+                            <td th:text="${profile.dateOfBirth} ?: '-'">2000-01-01</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Address</th>
+                            <td th:text="${profile.address} ?: '-'">123 Main St</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Created</th>
+                            <td th:text="${profile.createdAt} ?: '-'">2026-06-17</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Updated</th>
+                            <td th:text="${profile.updatedAt} ?: '-'">2026-06-17</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

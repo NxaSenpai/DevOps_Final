@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(content=~{::content}, title='ID Card Preview')}">
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">ID Card Preview</h1>
+        <div>
+            <a th:href="@{/id-cards/pdf/{id}(id=${profile.id})}"
+               class="btn btn-danger">
+                <i class="bi bi-file-pdf"></i> Download PDF
+            </a>
+            <a th:href="@{/profiles/{id}(id=${profile.id})}" class="btn btn-outline-secondary">Back to Profile</a>
+        </div>
+    </div>
+
+    <div class="card-id mx-auto shadow-sm">
+        <!-- Header -->
+        <div class="header text-center">
+            <h5 class="mb-0">IDENTIFICATION CARD</h5>
+            <small th:text="${profile.profileType}">STUDENT</small>
+        </div>
+
+        <!-- Body -->
+        <div class="p-3">
+            <div class="row g-3">
+                <!-- Photo -->
+                <div class="col-4 text-center">
+                    <img th:src="${profile.photoPath} ?: 'https://via.placeholder.com/100x120?text=No+Photo'"
+                         class="profile-photo" alt="Photo">
+                </div>
+                <!-- Details -->
+                <div class="col-8">
+                    <h4 class="mb-1" th:text="${profile.fullName}">John Doe</h4>
+                    <span class="badge bg-primary mb-2" th:text="${profile.profileType}">STUDENT</span>
+                    <table class="table table-sm table-borderless mb-0 small">
+                        <tr>
+                            <td class="text-muted">Reg#</td>
+                            <td><strong th:text="${profile.registrationNumber}">2026-CS-0001</strong></td>
+                        </tr>
+                        <tr th:if="${profile.department}">
+                            <td class="text-muted">Dept</td>
+                            <td th:text="${profile.department}">Computer Science</td>
+                        </tr>
+                        <tr th:if="${profile.email}">
+                            <td class="text-muted">Email</td>
+                            <td th:text="${profile.email}">john@example.com</td>
+                        </tr>
+                        <tr th:if="${profile.phone}">
+                            <td class="text-muted">Phone</td>
+                            <td th:text="${profile.phone}">+1234567890</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer with QR & Barcode -->
+        <div class="border-top p-3">
+            <div class="row align-items-center">
+                <div class="col-6 text-center">
+                    <img th:src="${qrCodeBase64}"
+                         style="width: 80px; height: 80px;" alt="QR Code">
+                    <div class="small text-muted mt-1">Scan to Verify</div>
+                </div>
+                <div class="col-6 text-center">
+                    <img th:src="${barcodeBase64}"
+                         style="width: 180px; height: 40px;" alt="Barcode">
+                    <div class="small text-muted" th:text="${profile.registrationNumber}">2026-CS-0001</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

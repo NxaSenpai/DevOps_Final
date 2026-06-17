@@ -1,0 +1,74 @@
+# ──────────────────────────────────────────────────
+# Docker Compose — NxaSenpai ID Card Management
+# Group: B  |  Name: TANG NAKRY
+# ──────────────────────────────────────────────────
+
+services:
+
+  # ═══════════════════════════════════════════════
+  # MySQL Database Container
+  # ═══════════════════════════════════════════════
+  db:
+    image: mysql:8.0
+    container_name: nxasenpai-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: Hello@123
+      MYSQL_DATABASE: B-TANG_NAKRY-db
+    ports:
+      - "3306:3306"                        # host:3307 → container:3306 (3306 already in use on host)
+    volumes:
+      - mysql-data:/var/lib/mysql          # persist data across restarts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pHello@123"]
+      interval: 10s
+      timeout: 5s
+      # start-period: 30s
+      retries: 5
+    networks:
+      - nxasenpai-net
+
+  # ═══════════════════════════════════════════════
+  # Web Server Container (Spring Boot + NGINX + SSH)
+  # ═══════════════════════════════════════════════
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nxasenpai-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8443:8443"                        # NGINX HTTPS (website)
+      - "2223:2222"                        # SSH (host:2223 → container:2222, 2222 already in use)
+    environment:
+      # ── MySQL connection (overrides H2 defaults in application.properties) ──
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/B-TANG_NAKRY-db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Hello@123
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
+      # Disable H2 console in production
+      SPRING_H2_CONSOLE_ENABLED: "false"
+    volumes:
+      - photos-data:/app/uploads/photos    # persist uploaded photos
+    networks:
+      - nxasenpai-net
+
+# ──────────────────────────────────────────────────
+# Named volumes
+# ──────────────────────────────────────────────────
+volumes:
+  mysql-data:
+    driver: local
+  photos-data:
+    driver: local
+
+# ──────────────────────────────────────────────────
+# Networks
+# ──────────────────────────────────────────────────
+networks:
+  nxasenpai-net:
+    driver: bridge

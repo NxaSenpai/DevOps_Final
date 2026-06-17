@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(content=~{::content}, title='Template Form')}">
+<body>
+<div th:fragment="content">
+    <h1 class="h3 mb-3" th:text="${template.id} ? 'Edit Template' : 'New Template'">New Template</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="${template.id} ? @{/templates/{id}(id=${template.id})} : @{/templates}"
+                  th:object="${template}" method="post" class="row g-3">
+
+                <!-- Name -->
+                <div class="col-md-6">
+                    <label class="form-label">Template Name *</label>
+                    <input type="text" th:field="*{name}" class="form-control"
+                           placeholder="e.g., Default Student Card" required>
+                    <div th:if="${#fields.hasErrors('name')}" class="text-danger small"
+                         th:errors="*{name}"></div>
+                </div>
+
+                <!-- Template Type -->
+                <div class="col-md-6">
+                    <label class="form-label">Template Type</label>
+                    <select th:field="*{templateType}" class="form-select">
+                        <option value="HTML">HTML (Thymeleaf-based)</option>
+                        <option value="PDF">PDF (iText-based)</option>
+                    </select>
+                </div>
+
+                <!-- Description -->
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <input type="text" th:field="*{description}" class="form-control"
+                           placeholder="Brief description of this template">
+                </div>
+
+                <!-- HTML Content -->
+                <div class="col-12">
+                    <label class="form-label">HTML / Layout Content</label>
+                    <textarea th:field="*{htmlContent}" class="form-control"
+                              rows="15"
+                              placeholder="Enter HTML template or layout configuration..."></textarea>
+                    <div class="form-text">
+                        For HTML templates: use Thymeleaf syntax with variables like
+                        <code>${profile.fullName}</code>, <code>${profile.registrationNumber}</code>.
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        <span th:text="${template.id} ? 'Update' : 'Create'">Save</span>
+                    </button>
+                    <a th:href="@{/templates}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

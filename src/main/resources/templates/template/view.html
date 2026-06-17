@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(content=~{::content}, title='View Template')}">
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3" th:text="${template.name}">Template Name</h1>
+        <div>
+            <a th:href="@{/templates/{id}/edit(id=${template.id})}" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <form th:action="@{/templates/{id}/delete(id=${template.id})}" method="post"
+                  style="display: inline;"
+                  onsubmit="return confirm('Delete this template?')">
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <table class="table table-borderless mb-0">
+                <tr>
+                    <th class="text-muted" style="width: 150px;">Name</th>
+                    <td th:text="${template.name}">Template Name</td>
+                </tr>
+                <tr>
+                    <th class="text-muted">Description</th>
+                    <td th:text="${template.description} ?: '-'">Description</td>
+                </tr>
+                <tr>
+                    <th class="text-muted">Type</th>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${template.templateType == 'HTML'} ? 'bg-info' : 'bg-dark'"
+                              th:text="${template.templateType}">HTML</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-muted">Created</th>
+                    <td th:text="${template.createdAt}">2026-06-17</td>
+                </tr>
+                <tr>
+                    <th class="text-muted">Updated</th>
+                    <td th:text="${template.updatedAt}">2026-06-17</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="card" th:if="${template.htmlContent != null && !template.htmlContent.isBlank()}">
+        <div class="card-header">
+            <strong>HTML Content</strong>
+        </div>
+        <div class="card-body">
+            <pre class="bg-light p-3 rounded"><code th:text="${template.htmlContent}">HTML content</code></pre>
+        </div>
+    </div>
+
+    <a th:href="@{/templates}" class="btn btn-outline-secondary mt-3">
+        <i class="bi bi-arrow-left"></i> Back to Templates
+    </a>
+</div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(content=~{::content}, title='Batch Create Profiles')}">
+<body>
+<div th:fragment="content">
+    <h1 class="h3 mb-3">Batch Create Profiles</h1>
+    <div class="card">
+        <div class="card-body">
+            <p class="text-muted">Use the REST API to upload profiles in bulk:</p>
+            <pre class="bg-light p-3 rounded"><code>POST /api/profiles/batch
+Content-Type: application/json
+
+[
+  {
+    "profileType": "STUDENT",
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "email": "alice@example.com",
+    "department": "Computer Science",
+    "phone": "+1234567890",
+    "dateOfBirth": "2000-05-15",
+    "address": "456 College Ave"
+  },
+  {
+    "profileType": "EMPLOYEE",
+    "firstName": "Bob",
+    "lastName": "Johnson",
+    "email": "bob@example.com",
+    "department": "Engineering",
+    "phone": "+0987654321",
+    "dateOfBirth": "1985-10-20",
+    "address": "789 Work Blvd"
+  }
+]</code></pre>
+            <p class="text-muted mt-2">Registration numbers will be auto-generated for each profile.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

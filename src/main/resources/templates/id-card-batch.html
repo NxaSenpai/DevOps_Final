@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(content=~{::content}, title='Batch ID Card Generation')}">
+<body>
+<div th:fragment="content">
+    <h1 class="h3 mb-3">Batch ID Card Generation</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Generate Cards by Selection</h5>
+            <form th:action="@{/id-cards/batch-pdf}" method="post" target="_blank">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th><input type="checkbox" id="selectAll"></th>
+                                <th>Reg#</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Department</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="profile : ${profiles}">
+                                <td>
+                                    <input type="checkbox" name="profileIds"
+                                           th:value="${profile.id}" class="profile-check">
+                                </td>
+                                <td th:text="${profile.registrationNumber}">2026-CS-0001</td>
+                                <td>
+                                    <a th:href="@{/id-cards/preview/{id}(id=${profile.id})}"
+                                       th:text="${profile.fullName}">John Doe</a>
+                                </td>
+                                <td><span class="badge bg-secondary" th:text="${profile.profileType}">STUDENT</span></td>
+                                <td th:text="${profile.department}">CS</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="submit" class="btn btn-danger mt-2">
+                    <i class="bi bi-file-zip"></i> Download Selected as ZIP
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Generate Cards by Department</h5>
+            <form th:action="@{/id-cards/batch-pdf/by-department}" method="get" target="_blank" class="row g-2">
+                <div class="col-auto">
+                    <input type="text" name="department" class="form-control"
+                           placeholder="Department name" required>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-file-zip"></i> Download Department ZIP
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('selectAll').addEventListener('change', function() {
+        document.querySelectorAll('.profile-check').forEach(cb => cb.checked = this.checked);
+    });
+</script>
+</body>
+</html>

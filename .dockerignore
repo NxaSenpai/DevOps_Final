@@ -1,0 +1,39 @@
+# Build output
+build/
+.gradle/
+bin/
+out/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Git (keep .git for pull/build inside container)
+.gitignore
+.gitattributes
+
+# Docs (not needed at runtime)
+*.md
+HELP.md
+
+# Ansible & Kubernetes (separate deployment)
+ansible/
+kubernetes/
+
+# Docker (avoid recursive copy)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Uploaded photos (use volume mount)
+uploads/

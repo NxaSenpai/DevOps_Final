@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(content=~{::content}, title='Templates')}">
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">ID Card Templates</h1>
+        <a th:href="@{/templates/new}" class="btn btn-primary">
+            <i class="bi bi-file-earmark-plus"></i> New Template
+        </a>
+    </div>
+
+    <!-- Search -->
+    <form class="row g-2 mb-3">
+        <div class="col-sm-10">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Search templates...">
+        </div>
+        <div class="col-sm-2">
+            <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </div>
+    </form>
+
+    <div th:if="${templates != null && templates.empty}" class="text-center py-5">
+        <i class="bi bi-layout-text-window text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-2">No templates found.</p>
+    </div>
+
+    <div th:if="${templates != null && !templates.empty}" class="row g-3">
+        <div class="col-md-4 mb-3" th:each="template : ${templates}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${template.name}">Default Template</h5>
+                    <p class="card-text text-muted small" th:text="${template.description} ?: 'No description'">
+                        Description text
+                    </p>
+                    <span class="badge"
+                          th:classappend="${template.templateType == 'HTML'} ? 'bg-info' : 'bg-dark'"
+                          th:text="${template.templateType}">HTML</span>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group btn-group-sm w-100">
+                        <a th:href="@{/templates/{id}(id=${template.id})}"
+                           class="btn btn-outline-primary">View</a>
+                        <a th:href="@{/templates/{id}/edit(id=${template.id})}"
+                           class="btn btn-outline-secondary">Edit</a>
+                        <form th:action="@{/templates/{id}/delete(id=${template.id})}" method="post"
+                              style="display: inline;"
+                              onsubmit="return confirm('Delete this template?')">
+                            <button type="submit" class="btn btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

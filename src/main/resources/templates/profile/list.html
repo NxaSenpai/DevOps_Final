@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: html(content=~{::content}, title='Profiles')}">
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Profiles</h1>
+        <div>
+            <a th:href="@{/profiles/batch}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-plus-square"></i> Batch Create
+            </a>
+            <a th:href="@{/profiles/new}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> New Profile
+            </a>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <form class="row g-2 mb-3">
+        <div class="col-sm-8">
+            <input type="text" name="search" class="form-control"
+                   placeholder="Search by name, email, reg#, or department..."
+                   th:value="${search}">
+        </div>
+        <div class="col-sm-2">
+            <select name="type" class="form-select">
+                <option value="">All Types</option>
+                <option th:each="pt : ${profileTypes}" th:value="${pt}" th:text="${pt}">STUDENT</option>
+            </select>
+        </div>
+        <div class="col-sm-2">
+            <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </div>
+    </form>
+
+    <!-- Table -->
+    <div th:if="${profiles.empty}" class="text-center py-5">
+        <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-2">No profiles found.</p>
+    </div>
+
+    <div th:if="${!profiles.empty}" class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Reg#</th>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Department</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="profile : ${profiles}">
+                    <td><code th:text="${profile.registrationNumber}">2026-CS-0001</code></td>
+                    <td>
+                        <img th:src="${profile.photoPath} ?: 'https://via.placeholder.com/30x30?text=?'"
+                             style="width: 30px; height: 30px; object-fit: cover; border-radius: 50%;">
+                    </td>
+                    <td th:text="${profile.fullName}">John Doe</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${profile.profileType == T(live.nxasenpai.NxaSenpai.model.ProfileType).STUDENT} ? 'bg-success'
+                              : ${profile.profileType == T(live.nxasenpai.NxaSenpai.model.ProfileType).EMPLOYEE} ? 'bg-warning text-dark'
+                              : 'bg-secondary'"
+                              th:text="${profile.profileType}">STUDENT</span>
+                    </td>
+                    <td th:text="${profile.department} ?: '-'">CS</td>
+                    <td th:text="${profile.email} ?: '-'">john@example.com</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a th:href="@{/profiles/{id}(id=${profile.id})}"
+                               class="btn btn-outline-primary" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a th:href="@{/id-cards/preview/{id}(id=${profile.id})}"
+                               class="btn btn-outline-info" title="Preview ID Card">
+                                <i class="bi bi-credit-card"></i>
+                            </a>
+                            <a th:href="@{/id-cards/pdf/{id}(id=${profile.id})}"
+                               class="btn btn-outline-danger" title="Download PDF">
+                                <i class="bi bi-file-pdf"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
