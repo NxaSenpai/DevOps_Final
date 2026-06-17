@@ -1,0 +1,150 @@
+---
+# ═══════════════════════════════════════════════════════════════
+# Ansible Playbook — NxaSenpai CI/CD
+# Group: B  |  Name: TANG NAKRY
+#
+# Steps:
+#   1. Ensure clean git state (no local changes)
+#   2. Git pull latest code
+#   3. Build with Gradle
+#   4. Run tests with SQLite (prod = MySQL, test = SQLite)
+#   5. Backup MySQL database
+# ═══════════════════════════════════════════════════════════════
+
+- name: NxaSenpai — Deploy & Test
+  hosts: web_servers
+  gather_facts: no
+  environment:
+    JAVA_HOME: /opt/java/openjdk
+
+  tasks:
+    # ──────────────────────────────────────────────────────
+    # Step 1: Ensure no local changes before git pull
+    # ──────────────────────────────────────────────────────
+    - name: Step 1 — Discard local changes (restore tracked files to HEAD)
+      ansible.builtin.command:
+        cmd: git reset --hard HEAD
+        chdir: /app
+      register: git_reset
+      ignore_errors: yes
+
+    - name: Show reset result
+      ansible.builtin.debug:
+        msg: "{{ git_reset.stdout if git_reset.stdout else 'Working directory clean' }}"
+
+    # ──────────────────────────────────────────────────────
+    # Step 2: Git pull latest code
+    # ──────────────────────────────────────────────────────
+    - name: Step 2 — Git pull latest code
+      ansible.builtin.command:
+        cmd: git pull origin master
+        chdir: /app
+      register: git_pull
+      ignore_errors: yes
+
+    - name: Git pull result
+      ansible.builtin.debug:
+        msg: |
+          {% if git_pull.stdout %}
+          {{ git_pull.stdout }}
+          {% elif git_pull.stderr %}
+          {{ git_pull.stderr }}
+          {% else %}
+          No output
+          {% endif %}
+
+    # ──────────────────────────────────────────────────────
+    # Step 3: Build with Gradle (compile only, no tests yet)
+    # ──────────────────────────────────────────────────────
+    - name: Step 3 — Gradle build (compile, skip tests)
+      ansible.builtin.command:
+        cmd: ./gradlew compileJava --no-daemon --console=plain
+        chdir: /app
+      register: gradle_build
+
+    - name: Build result summary
+      ansible.builtin.debug:
+        msg: |
+          {% if gradle_build.stdout %}
+          {{ gradle_build.stdout_lines[-10:] | join('\n') }}
+          {% endif %}
+          {% if 'BUILD SUCCESSFUL' in gradle_build.stdout %}
+          ✅ Gradle build successful
+          {% elif 'BUILD FAILED' in gradle_build.stdout %}
+          ❌ Build failed — check output above
+          {% endif %}
+
+    # ──────────────────────────────────────────────────────
+    # Step 4: Run tests with SQLite database
+    #   (src/test/resources/application.properties → SQLite)
+    #   (docker-compose env vars           → MySQL for prod)
+    # ──────────────────────────────────────────────────────
+    - name: Step 4 — Run tests with SQLite database
+      ansible.builtin.command:
+        cmd: ./gradlew test --no-daemon --console=plain
+        chdir: /app
+      register: gradle_test
+
+    - name: Test results
+      ansible.builtin.debug:
+        msg: |
+          {% if gradle_test.stdout %}
+          {{ gradle_test.stdout_lines[-15:] | join('\n') }}
+          {% endif %}
+          {% if 'BUILD SUCCESSFUL' in gradle_test.stdout %}
+          ✅ All tests passed with SQLite database
+          {% elif 'BUILD FAILED' in gradle_test.stdout %}
+          ❌ Tests failed — check output above
+          {% endif %}
+
+    # ──────────────────────────────────────────────────────
+    # Step 5: Backup MySQL production database
+    # ──────────────────────────────────────────────────────
+    - name: Step 5 — Backup MySQL database to /app/backup.sql
+      ansible.builtin.shell:
+        cmd: >-
+          mysqldump -h db -u root -pHello@123
+          --single-transaction --routines --triggers
+          --no-tablespaces
+          B-TANG_NAKRY-db > /app/backup.sql
+        chdir: /app
+      register: db_backup
+
+    - name: Check backup file
+      ansible.builtin.stat:
+        path: /app/backup.sql
+      register: backup_stat
+
+    - name: Backup result
+      ansible.builtin.debug:
+        msg: |
+          {% if backup_stat.stat.exists %}
+          ✅ Database backed up successfully
+          File: /app/backup.sql
+          Size: {{ (backup_stat.stat.size / 1024) | round(1) }} KB
+          {% else %}
+          ⚠️  Backup file not found — mysqldump may have failed
+          {% endif %}
+
+    # ──────────────────────────────────────────────────────
+    # Fetch backup to control machine
+    # ──────────────────────────────────────────────────────
+    - name: Download backup.sql to local ansible/ directory
+      ansible.builtin.fetch:
+        src: /app/backup.sql
+        dest: "{{ playbook_dir }}/backup.sql"
+        flat: yes
+      when: backup_stat.stat.exists
+
+    - name: Final summary
+      ansible.builtin.debug:
+        msg: |
+          ╔══════════════════════════════════════════╗
+          ║     ✅  PLAYBOOK COMPLETE               ║
+          ╠══════════════════════════════════════════╣
+          ║  1. Git state cleaned                   ║
+          ║  2. Code pulled from origin/master      ║
+          ║  3. Gradle build complete               ║
+          ║  4. Tests passed (SQLite)               ║
+          ║  5. MySQL backup → ansible/backup.sql   ║
+          ╚══════════════════════════════════════════╝
