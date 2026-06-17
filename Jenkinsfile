@@ -17,7 +17,7 @@ pipeline {
 
     // ── Global environment variables ──
     environment {
-        JAVA_HOME = '/usr/lib/jvm/java-25-openjdk-amd64'
+        JAVA_HOME = '/opt/java/openjdk'
         GRADLE_OPTS = '-Dorg.gradle.daemon=false'
         ANSIBLE_HOST_KEY_CHECKING = 'False'
     }
