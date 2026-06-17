@@ -57,6 +57,31 @@ services:
     networks:
       - nxasenpai-net
 
+  # ═══════════════════════════════════════════════
+  # phpMyAdmin — MySQL database management
+  # Access: http://<server-ip>:8081  OR  https://<server-ip>:8443/phpmyadmin/
+  # ═══════════════════════════════════════════════
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: nxasenpai-phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: Hello@123
+      # ── Allow phpMyAdmin to store its own config in MySQL ──
+      PMA_CONFIG_BASE64: ''
+      # ── Increase upload limit for SQL imports ──
+      UPLOAD_LIMIT: 64M
+    ports:
+      - "8081:80"                            # host:8081 → container:80 (8080 taken by Jenkins)
+    networks:
+      - nxasenpai-net
+
 # ──────────────────────────────────────────────────
 # Named volumes
 # ──────────────────────────────────────────────────
